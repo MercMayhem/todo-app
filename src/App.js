@@ -23,8 +23,8 @@ function Todos() {
         }
     }
 
-    let makeEnlarged = (text) => {
-        setEnlargedText(text);
+    let makeEnlarged = (text, index) => {
+        setEnlargedText({ text: text, index: index });
         setEnlarged(true);
     }
 
@@ -47,18 +47,18 @@ function Todos() {
                           </TodoListItem> )) }
                 </ul>
             </div>
-        { enlarged ? <TodoEnlarged setEnlarged={setEnlarged} enlargedText={enlargedText}/> : null }
+            { enlarged ? <TodoEnlarged setEnlarged={setEnlarged} enlargedText={enlargedText} setTodos={ setTodos }/> : null }
         </div>
 
         </>
     );
 }
 
-function TodoEnlarged({ setEnlarged, enlargedText }) {
+function TodoEnlarged({ setEnlarged, enlargedText, setTodos }) {
     const style = {
-        position : "fixed",
-        top: 0,
-        right: 0,
+        position : "absolute",
+        top: "50%",
+        right: "25%",
         background: "white",
         border: "1px dashed black",
         padding: 2,
@@ -70,8 +70,9 @@ function TodoEnlarged({ setEnlarged, enlargedText }) {
     }
 
     const emptyDivStyle = {
-        position: "absolute",
+        position: "fixed",
         top: 0,
+        left: 0,
         height: "100%",
         width: "100%",
         background: "black",
@@ -88,18 +89,24 @@ function TodoEnlarged({ setEnlarged, enlargedText }) {
         margin: 5,
         overflowX: "auto",
         overflowY: "auto",
-        whiteSpace: "pre-wrap", 
         textWrap: "pretty",
-        overflowWrap: "anywhere" 
+        overflowWrap: "anywhere",
+        whiteSpace: "pre-wrap"
     };
 
+    let buttonClickHandler = () => {
+        let text = document.getElementById("enlarged").innerText
+        setTodos((prevTodos) => { prevTodos[enlargedText.index] = text; return prevTodos})
+        setEnlarged(false) 
+        console.log(text)
+    }
 
     return (
         <>
         <div style = {emptyDivStyle}/>
         <div style={ style }>
-            <div style = { textContainerStyle }>{ enlargedText }</div>
-            <button onClick= { () => {setEnlarged(false)} } style = { buttonStyle }> Close </button>
+            <div id = "enlarged" style = { textContainerStyle } contentEditable>{ enlargedText.text }</div>
+            <button onClick= { buttonClickHandler } style = { buttonStyle }> Close </button>
         </div>
         </>
     )
@@ -117,7 +124,7 @@ function TodoListItem(prop) {
 
     return ( 
         <li key={prop.index} style = { color } className="todo-item" onMouseEnter = { () => setColor(gray) } onMouseLeave = { () => setColor(white) } 
-            onClick = { (e) => prop.makeEnlarged(prop.children) }>
+            onClick = { (e) => prop.makeEnlarged(prop.children, prop.index) }>
             <Todo todo={ prop.children } onDelete = { () => deleteHandler(prop.index)} />
         </li>
     )
